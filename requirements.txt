@@ -1,1 +1,2 @@
-requests
+protonvpn-cli (apt/apt-get)
+request (pip)
