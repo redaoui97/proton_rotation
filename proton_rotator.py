@@ -7,7 +7,7 @@ import requests
 def rotate_ip():
     subprocess.run(["protonvpn-cli", "disconnect"])
     time.sleep(2)
-    subprocess.run(["protonvpn-cli", "connect", "-f"])  # "-f" flag for auto-connect
+    subprocess.run(["protonvpn-cli", "connect", "--random"])  # "-f" flag for auto-connect
 
 def check_target_status(target_url):
     try:
