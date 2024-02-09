@@ -3,54 +3,40 @@ import time
 import argparse
 import requests
 
+#protonvpn-cli is deprected but game is game
 def rotate_ip():
-    # Command to disconnect from ProtonVPN
     subprocess.run(["protonvpn-cli", "disconnect"])
-
-    # Wait for a few seconds for disconnection
     time.sleep(2)
-
-    # Command to connect to ProtonVPN
     subprocess.run(["protonvpn-cli", "connect", "-f"])  # "-f" flag for auto-connect
-
-def run_command(command):
-    # Run the provided command
-    subprocess.run(command, shell=True)
 
 def check_target_status(target_url):
     try:
         response = requests.get(target_url)
         return response.status_code == 200
     except requests.exceptions.RequestException as e:
-        print(f"Error checking target status: {e}")
+        print(f"Target down: {e}")
         return False
 
-# Main function
+def proton_connect(username):
+    subprocess.run(["protonvpn-cli", "login",  username])
+
 def main():
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Rotate IP address and execute command while checking target status")
-    parser.add_argument("-c", "--command", required=True, help="Command to execute")
+    parser = argparse.ArgumentParser(description="protonvpn-cli ip rotation")
     parser.add_argument("-r", "--rotation-interval", type=int, default=5, help="Rotation interval in seconds (default: 5)")
     parser.add_argument("-u", "--target-url", required=True, help="Target URL or domain")
+    parser.add_argument("-n", "--username", required=True, help="protonvpn username, visit 'https://protonvpn.com/' if you don't have an account")
     args = parser.parse_args()
 
     try:
+        proton_connect(args.username)
         while True:
-            # Rotate IP
             rotate_ip()
-
-            # Check target status
             if check_target_status(args.target_url):
                 print("Target status: OK")
-
-                # Run command
-                run_command(args.command)
-
-                # Wait for rotation interval
                 time.sleep(args.rotation_interval)
             else:
-                print("Target status is not 200. Waiting before retrying...")
-                time.sleep(10)  # Wait for 10 seconds before retrying
+                print("Target doesn't respond. Waiting before retrying...")
+                time.sleep(5)
 
     except KeyboardInterrupt:
         print("\nExiting program.")
